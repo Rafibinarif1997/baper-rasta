@@ -52,7 +52,7 @@
       this.police=this.add.container(1900,900);this.drawPolice(this.police);this.police.setVisible(false);this.physics.add.existing(this.police);this.police.body.setCircle(20);this.police.body.setEnable(false);
       this.traffic=[];
       [[850,930],[1600,1120],[420,1770]].forEach((v,i)=>{const car=this.add.rectangle(v[0],v[1],52,30,[0x4d80a0,0xc35c4e,0xd6b04c][i]).setStrokeStyle(3,0x26393a);car.setDepth(3);this.traffic.push({obj:car,dx:i%2?1:-1});});
-      this.lastHud=0;ui.loading.style.display="none";
+      this.lastHud=0;this.lastCrash=0;ui.loading.style.display="none";
       setMission("হলুদ চিহ্নের কাছে গিয়ে যাত্রী তুলুন। E / SPACE চাপুন।");updateHud();
     }
     drawMap(W,H){
@@ -93,7 +93,7 @@
       let vx=(right?1:0)-(left?1:0),vy=(down?1:0)-(up?1:0),moving=vx!==0||vy!==0;
       if(moving&&state.battery>0){const l=Math.hypot(vx,vy);vx/=l;vy/=l;this.player.body.setVelocity(vx*this.speed,vy*this.speed);state.battery=Math.max(0,state.battery-delta*(.0013+this.speed*.000003));this.player.rotation=Math.atan2(vy,vx)+Math.PI/2;}
       else{this.player.body.setVelocity(0,0);state.battery=Math.min(100,state.battery+delta*.00025);}
-      this.traffic.forEach(t=>{t.obj.x+=t.dx*delta*.035;if(t.obj.x>2500)t.obj.x=80;if(t.obj.x<50)t.obj.x=2480;});
+      this.traffic.forEach(t=>{t.obj.x+=t.dx*delta*.035;if(t.obj.x>2500)t.obj.x=80;if(t.obj.x<50)t.obj.x=2480;const hit=Phaser.Math.Distance.Between(this.player.x,this.player.y,t.obj.x,t.obj.y)<39;if(hit&&moving&&time-this.lastCrash>3500){this.lastCrash=time;state.wanted=Math.min(5,state.wanted+1);state.family=Math.max(0,state.family-2);toast("সাবধান! গাড়িতে ধাক্কা লেগেছে — পুলিশ খাতায় নাম উঠেছে!");this.cameras.main.shake(180,.003);save();updateHud();}});
       const p=nearbyAction();if(p)ui.action.textContent=p.kind==="passenger"?"যাত্রী নিন":p.kind==="garage"?"রিকশা আপগ্রেড":p.kind==="home"?"বাসায় যান":p.kind==="police"?"থানায় কথা বলুন":p.kind==="tea"?"চা খান":"ভাত খান";else ui.action.textContent="কাজ করুন";
       if(state.wanted>0){this.police.setVisible(true);this.police.body.setEnable(true);const angle=Phaser.Math.Angle.Between(this.police.x,this.police.y,this.player.x,this.player.y);this.physics.moveToObject(this.police,this.player,70+state.wanted*13);if(Phaser.Math.Distance.Between(this.police.x,this.police.y,this.player.x,this.player.y)<42){const fine=Math.min(state.cash,Math.max(50,state.wanted*60));state.cash-=fine;state.wanted=0;this.police.body.setVelocity(0,0);this.police.setPosition(1900,900);toast("পুলিশ ধরেছে! জরিমানা ৳ "+bn(fine));save();updateHud();}else if(time-this.lastWanted>45000){state.wanted=Math.max(0,state.wanted-1);this.lastWanted=time;}}
       else{this.police.setVisible(false);this.police.body.setEnable(false);}
