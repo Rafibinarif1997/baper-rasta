@@ -1,11 +1,11 @@
 (() => {
   "use strict";
   const $ = id => document.getElementById(id);
-  const ui = {cash:$("cash"),battery:$("battery"),day:$("day"),mission:$("mission-text"),action:$("action-button"),wanted:$("wanted"),wantedLevel:$("wanted-level"),toast:$("toast"),loading:$("loading")};
+  const ui = {cash:$("cash"),battery:$("battery"),day:$("day"),food:$("food"),family:$("family"),mission:$("mission-text"),action:$("action-button"),wanted:$("wanted"),wantedLevel:$("wanted-level"),toast:$("toast"),loading:$("loading")};
   const held={up:false,down:false,left:false,right:false};
   const SAVE_KEY="baper-rasta-local-v1";
   const bn=n=>String(Math.floor(n)).replace(/\d/g,d=>"০১২৩৪৫৬৭৮৯"[d]);
-  const initial={cash:50,battery:100,day:1,food:70,family:100,wanted:0,upgrades:0,rides:0};
+  const initial={cash:50,battery:100,day:1,food:70,family:100,wanted:0,upgrades:0,rides:0,dailyIncome:0};
   let state={...initial};
   try{const saved=JSON.parse(localStorage.getItem(SAVE_KEY)||"null");if(saved)state={...initial,...saved};}catch(e){}
   let sceneRef=null, toastTimer=null;
@@ -15,12 +15,12 @@
   function updateHud(){
     ui.cash.textContent="৳ "+bn(state.cash);
     ui.battery.textContent=bn(state.battery)+"%";
-    ui.day.textContent=bn(state.day);
+    ui.day.textContent=bn(state.day);ui.food.textContent=bn(state.food)+"%";ui.family.textContent=bn(state.family)+"%";
     ui.wanted.hidden=state.wanted<=0;
     ui.wantedLevel.textContent="★".repeat(Math.min(5,state.wanted));
   }
   function spend(amount){if(state.cash<amount){toast("মামা, পকেটে টাকা কম!");return false;}state.cash-=amount;return true;}
-  function earn(amount,reason){state.cash+=amount;state.rides++;toast(reason+" +৳ "+bn(amount));save();updateHud();}
+  function earn(amount,reason){state.cash+=amount;state.rides++;state.dailyIncome=(state.dailyIncome||0)+amount;toast(reason+" +৳ "+bn(amount));save();updateHud();}
   function nearbyAction(){if(!sceneRef||!sceneRef.player)return null;let best=null,dist=Infinity;
     sceneRef.points.forEach(p=>{if(!p.active)return;const d=Phaser.Math.Distance.Between(sceneRef.player.x,sceneRef.player.y,p.x,p.y);if(d<dist){best=p;dist=d;}});
     return dist<105?best:null;
@@ -33,7 +33,7 @@
     if(p.kind==="tea"){if(spend(10)){state.food=Math.min(100,state.food+8);state.family=Math.min(100,state.family+2);toast("এক কাপ চা খেলেন। খরচ ৳ ১০");save();updateHud();}}
     if(p.kind==="hotel"){if(spend(35)){state.food=Math.min(100,state.food+35);state.family=Math.min(100,state.family+4);toast("ভাত-তরকারি খেয়ে শক্তি ফিরে পেলেন!");save();updateHud();}}
     if(p.kind==="garage"){const price=100+state.upgrades*100;if(spend(price)){state.upgrades++;state.battery=100;sceneRef.speed=155+state.upgrades*22;toast("রিকশা আপগ্রেড সম্পন্ন! নতুন স্পিড "+bn(sceneRef.speed));save();updateHud();}}
-    if(p.kind==="home"){const cost=60;if(spend(cost)){state.day++;state.food=Math.max(35,state.food-18);state.battery=100;state.wanted=0;if(state.cash<80)state.family=Math.max(0,state.family-18);else state.family=Math.min(100,state.family+5);save();updateHud();toast("নতুন দিন শুরু! পরিবারের খরচ ৳ ৬০।");setMission("নতুন দিন "+bn(state.day)+": আজ অন্তত ৳ ১৫০ আয় করার চেষ্টা করুন।");}}
+    if(p.kind==="home"){const cost=60;if(spend(cost)){state.day++;state.food=Math.max(35,state.food-18);state.battery=100;state.wanted=0;if((state.dailyIncome||0)<150)state.family=Math.max(0,state.family-18);else state.family=Math.min(100,state.family+5);state.dailyIncome=0;save();updateHud();toast("নতুন দিন শুরু! পরিবারের খরচ ৳ ৬০।");setMission("নতুন দিন "+bn(state.day)+": আজ অন্তত ৳ ১৫০ আয় করার চেষ্টা করুন।");}}
     if(p.kind==="police"){if(state.wanted>0){const fine=Math.min(state.cash,Math.max(50,state.wanted*60));state.cash-=fine;state.wanted=0;save();updateHud();toast("জরিমানা দিয়ে থানা থেকে ছাড়া পেলেন। ৳ "+bn(fine));}else toast("কোনো অভিযোগ নেই। সাবধানে রিকশা চালান!");}
   }
   class CityScene extends Phaser.Scene{
@@ -91,7 +91,7 @@
     update(time,delta){
       const k=this.keys,up=held.up||k.W.isDown||k.UP.isDown,down=held.down||k.S.isDown||k.DOWN.isDown,left=held.left||k.A.isDown||k.LEFT.isDown,right=held.right||k.D.isDown||k.RIGHT.isDown;
       let vx=(right?1:0)-(left?1:0),vy=(down?1:0)-(up?1:0),moving=vx!==0||vy!==0;
-      if(moving&&state.battery>0){const l=Math.hypot(vx,vy);vx/=l;vy/=l;this.player.body.setVelocity(vx*this.speed,vy*this.speed);state.battery=Math.max(0,state.battery-delta*(.0013+this.speed*.000003));this.player.rotation=Math.atan2(vy,vx)+Math.PI/2;}
+      if(moving&&state.battery>0){const l=Math.hypot(vx,vy);vx/=l;vy/=l;state.food=Math.max(0,state.food-delta*.00012);const hungerPenalty=state.food<15?0.72:1;this.player.body.setVelocity(vx*this.speed*hungerPenalty,vy*this.speed*hungerPenalty);state.battery=Math.max(0,state.battery-delta*(.0013+this.speed*.000003));this.player.rotation=Math.atan2(vy,vx)+Math.PI/2;}
       else{this.player.body.setVelocity(0,0);state.battery=Math.min(100,state.battery+delta*.00025);}
       this.traffic.forEach(t=>{t.obj.x+=t.dx*delta*.035;if(t.obj.x>2500)t.obj.x=80;if(t.obj.x<50)t.obj.x=2480;const hit=Phaser.Math.Distance.Between(this.player.x,this.player.y,t.obj.x,t.obj.y)<39;if(hit&&moving&&time-this.lastCrash>3500){this.lastCrash=time;state.wanted=Math.min(5,state.wanted+1);state.family=Math.max(0,state.family-2);toast("সাবধান! গাড়িতে ধাক্কা লেগেছে — পুলিশ খাতায় নাম উঠেছে!");this.cameras.main.shake(180,.003);save();updateHud();}});
       const p=nearbyAction();if(p)ui.action.textContent=p.kind==="passenger"?"যাত্রী নিন":p.kind==="garage"?"রিকশা আপগ্রেড":p.kind==="home"?"বাসায় যান":p.kind==="police"?"থানায় কথা বলুন":p.kind==="tea"?"চা খান":"ভাত খান";else ui.action.textContent="কাজ করুন";
