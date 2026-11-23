@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="theme-color" content="#101a20" />
+  <meta name="description" content="Baper Rasta — a Bangladeshi rickshaw life simulator." />
+  <title>Baper Rasta — বাপের রাস্তা</title>
+  <link rel="stylesheet" href="./style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js"></script>
+  <script defer src="./src/game.js"></script>
+</head>
+<body>
+  <main id="game-shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">BR</span><div><strong>BAPER RASTA</strong><small>বাপের রাস্তা · Rickshaw Life</small></div></div>
+      <div class="stats"><span>💵 <b id="cash">৳ ৫০</b></span><span>🔋 <b id="battery">১০০%</b></span></div>
+    </header>
+    <section id="game-container" aria-label="Baper Rasta game"></section>
+    <div class="mission"><span class="pulse"></span><span id="mission-text">মামা, রিকশা নিয়ে রাস্তায় বের হন!</span></div>
+    <div class="controls" aria-label="Touch controls">
+      <div class="dpad">
+        <button class="control up" data-key="up" aria-label="Move up">▲</button>
+        <button class="control left" data-key="left" aria-label="Move left">◀</button>
+        <button class="control down" data-key="down" aria-label="Move down">▼</button>
+        <button class="control right" data-key="right" aria-label="Move right">▶</button>
+      </div>
+      <button class="action" id="work-button">যাত্রী নিন</button>
+    </div>
+    <footer>DEMO 01 · DHAKA CITY · WASD / ARROW KEYS</footer>
+  </main>
+</body>
+</html>
