@@ -13,7 +13,7 @@ This is a browser-playable single-player prototype. The selected camera follows 
 
 These are test values and can be balanced after playtesting.
 
-## Save data
+## Family and daily routine\n- The prototype tracks food and family condition locally.\n- Moving slowly consumes food; low food reduces movement speed.\n- A cooked meal or tea restores some food/family condition.\n- Sleeping at home advances the day and costs ৳60.\n- Daily income target is ৳150; meeting it improves family condition, missing it reduces family condition.\n\n## Save data
 The prototype stores local progress in browser localStorage under `baper-rasta-local-v1`. Clearing browser data resets progress. This is not account sync and can be edited by the player; never use it as a trusted multiplayer balance.
 
 ## Multiplayer boundary
