@@ -1,30 +1,37 @@
 # Baper Rasta — বাপের রাস্তা
 
-A 2D Bangladeshi rickshaw-life open-world game prototype.
+A mobile-first 2D Bangladeshi rickshaw-life game prototype with a follow camera.
 
-## Current prototype
-- 2D city map with a follow-camera
-- Rickshaw movement with keyboard and mobile touch controls
-- Passenger pickup and simple fare income
-- Battery meter
-- Tea stall, garage and police outpost landmarks
+## Play
+Open the GitHub Pages site after enabling Pages from **Settings → Pages → Deploy from a branch → main → /(root)**.
 
-## Run locally
-Open `index.html` in a browser, or use a simple static web server.
+## Current playable features
+- Follow-camera city exploration with touch controls and keyboard controls.
+- Rickshaw-style player character, procedural Dhaka-inspired streets and buildings.
+- Passenger pickup and fare earning.
+- Tea stall, rice hotel, home and rickshaw garage interactions.
+- Battery drain and passive recharge.
+- Rickshaw speed/battery upgrades purchased with in-game money.
+- Daily home/upkeep loop and family condition meter in saved game state.
+- Wanted stars, a pursuing police officer and fine when caught.
+- Local browser save using localStorage (single-device only).
 
-## Deploy with GitHub Pages
-1. Open **Settings → Pages**.
-2. Under **Build and deployment**, choose **Deploy from a branch**.
-3. Select branch **main** and folder **/ (root)**.
-4. Save and wait for the Pages URL to appear.
+## Controls
+- Mobile: directional pad + action button.
+- Desktop: WASD or arrow keys to move; E or Space to interact.
+- Horn button / on-screen horn for feedback.
 
-## Planned next
-Supabase authentication, persistent player profiles, server-validated economy, and realtime multiplayer presence.
+## Technology
+- Phaser 3 loaded from jsDelivr CDN.
+- Vanilla JavaScript and CSS.
+- GitHub Pages for static hosting.
+- LocalStorage for temporary local progress.
 
-## Tech
-- Phaser 3 (loaded from jsDelivr CDN)
-- Vanilla JavaScript, HTML and CSS
-- GitHub Pages hosting
-- Supabase planned for backend and realtime features
+## Not implemented yet
+Supabase is intentionally not connected. Online accounts, server-side economy, real multiplayer synchronization, player-to-player interaction, elections and weekly association dues require a backend and are future milestones. The current police and economy systems are a local prototype, not secure online systems.
 
-This is an early playable prototype, not the completed multiplayer game.
+## Next development milestones
+1. Polish map, collision, character and rickshaw art.
+2. Add passenger routes, traffic, collisions, sound and missions.
+3. Add Supabase authentication, database and realtime multiplayer.
+4. Add server-authoritative economy, association elections and moderation tools.
