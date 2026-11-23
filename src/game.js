@@ -39,6 +39,7 @@
   class CityScene extends Phaser.Scene{
     constructor(){super("City");this.points=[];this.speed=155;this.lastWanted=0;}
     create(){
+      sceneRef=this;
       const W=2600,H=2100;this.physics.world.setBounds(0,0,W,H);this.cameras.main.setBounds(0,0,W,H);
       this.drawMap(W,H);this.addLandmarks();
       this.player=this.add.container(500,480);this.drawRickshaw(this.player);
@@ -109,6 +110,5 @@
   game.events.on("ready",()=>{});
   game.scene.start("City");
   game.events.on("step",()=>{});
-  game.scene.getScene("City").events.once("create",function(){sceneRef=this;});
   updateHud();
 })();
