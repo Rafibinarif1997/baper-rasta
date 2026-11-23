@@ -51,23 +51,74 @@
       this.passengerLocations.forEach((v,i)=>this.addPoint(v[0],v[1],"passenger","যাত্রী",0xf3c451));
       this.police=this.add.container(1900,900);this.drawPolice(this.police);this.police.setVisible(false);this.physics.add.existing(this.police);this.police.body.setCircle(20);this.police.body.setEnable(false);
       this.traffic=[];
-      [[850,930],[1600,1120],[420,1770]].forEach((v,i)=>{const car=this.add.rectangle(v[0],v[1],52,30,[0x4d80a0,0xc35c4e,0xd6b04c][i]).setStrokeStyle(3,0x26393a);car.setDepth(3);this.traffic.push({obj:car,dx:i%2?1:-1});});
+      [[850,930],[1600,1120],[420,1770],[1950,330],[1300,1470]].forEach((v,i)=>{
+        const car=this.add.container(v[0],v[1]);
+        car.add([this.add.ellipse(0,13,72,24,0x202522,.35),
+          this.add.rectangle(0,0,62,30,[0x477b91,0xa94e42,0xc39b42,0x47705b,0xb7b4a8][i]).setStrokeStyle(2,0x29332f),
+          this.add.rectangle(0,-1,29,24,0x263d45),this.add.rectangle(0,-1,22,18,0x8daeb0),
+          this.add.rectangle(-27,-9,5,8,0xf3e5b5),this.add.rectangle(27,-9,5,8,0xf3e5b5),
+          this.add.rectangle(-27,10,5,7,0xc64a3d),this.add.rectangle(27,10,5,7,0xc64a3d),
+          this.add.rectangle(-19,-16,13,5,0x202523),this.add.rectangle(19,-16,13,5,0x202523),
+          this.add.rectangle(-19,16,13,5,0x202523),this.add.rectangle(19,16,13,5,0x202523)]);
+        car.setDepth(4);this.traffic.push({obj:car,dx:i%2?1:-1,base:v[1],vertical:i===3});
+      });
+      this.pedestrians=[];
+      [[260,280],[590,510],[850,850],[1250,880],[1500,1380],[2050,1520],[700,1640],[2200,760],[1120,280],[1830,1190]].forEach((v,i)=>this.addPedestrian(v[0],v[1],i));
       this.lastHud=0;this.lastCrash=0;ui.loading.style.display="none";
       setMission("হলুদ চিহ্নের কাছে গিয়ে যাত্রী তুলুন। E / SPACE চাপুন।");updateHud();
     }
     drawMap(W,H){
-      const g=this.add.graphics();g.fillStyle(0x819a70,1);g.fillRect(0,0,W,H);
-      g.fillStyle(0x59625c,1);[330,900,1470].forEach(y=>g.fillRect(0,y,W,150));[380,1040,1710,2300].forEach(x=>g.fillRect(x,0,135,H));
-      g.lineStyle(3,0xe7dba9,.8);[405,975,1545].forEach(y=>{for(let x=0;x<W;x+=75)g.lineBetween(x,y,x+35,y)});[447,1107,1777,2367].forEach(x=>{for(let y=0;y<H;y+=75)g.lineBetween(x,y,x,y+35)});
-      const colors=[0xc47d57,0xd8b77c,0xa4ad91,0xb76d5b,0xe2c99b,0x7898a0,0x9b829d];
-      for(let y=25;y<H-130;y+=215)for(let x=20;x<W-150;x+=230){
-        if((x>330&&x<540)||(y>300&&y<510))continue;
-        const bx=x+((Math.floor(y/215)%2)*22),by=y+((Math.floor(x/230)%2)*16),c=colors[(Math.floor(x/230)+Math.floor(y/215))%colors.length];
-        g.fillStyle(0x25342c,.25);g.fillRoundedRect(bx+8,by+10,154,128,8);g.fillStyle(c,1);g.fillRoundedRect(bx,by,154,128,7);
-        g.fillStyle(0x594a3d,1);g.fillRect(bx+63,by+75,28,53);g.fillStyle(0x9ed1ce,1);g.fillRect(bx+18,by+24,28,25);g.fillRect(bx+108,by+24,28,25);g.fillStyle(0x725b45,1);g.fillRect(bx+12,by+5,130,9);
+      const g=this.add.graphics();
+      // Dusty earth, drainage edges and worn asphalt
+      g.fillStyle(0x777b68,1);g.fillRect(0,0,W,H);
+      for(let i=0;i<1900;i++){const x=(i*97)%W,y=(i*193)%H;g.fillStyle(i%3?0x92907a:0x626b5c,.18);g.fillCircle(x,y,1+(i%3));}
+      const roadsY=[330,900,1470],roadsX=[380,1040,1710,2300];
+      roadsY.forEach(y=>{
+        g.fillStyle(0x4b504e,1);g.fillRect(0,y,W,150);
+        g.fillStyle(0x686b63,1);g.fillRect(0,y,W,7);g.fillRect(0,y+143,W,7);
+        g.fillStyle(0x3c4240,1);g.fillRect(0,y+12,W,126);
+        g.lineStyle(2,0xc2b78e,.5);for(let x=0;x<W;x+=110)g.lineBetween(x,y+75,x+48,y+75);
+        g.lineStyle(2,0x9a9a85,.35);g.lineBetween(0,y+10,W,y+10);g.lineBetween(0,y+140,W,y+140);
+      });
+      roadsX.forEach(x=>{
+        g.fillStyle(0x4b504e,1);g.fillRect(x,0,135,H);g.fillStyle(0x3c4240,1);g.fillRect(x+8,0,119,H);
+        g.lineStyle(2,0xc2b78e,.45);for(let y=0;y<H;y+=110)g.lineBetween(x+67,y,x+67,y+48);
+        g.lineStyle(2,0x9a9a85,.35);g.lineBetween(x+5,0,x+5,H);g.lineBetween(x+130,0,x+130,H);
+      });
+      // Footpaths, drains and irregular alleys
+      roadsY.forEach(y=>{g.fillStyle(0xb0a48a,1);g.fillRect(0,y-15,W,14);g.fillRect(0,y+151,W,14);g.lineStyle(2,0x454c47,.6);g.lineBetween(0,y-1,W,y-1);g.lineBetween(0,y+151,W,y+151);});
+      roadsX.forEach(x=>{g.fillStyle(0xb0a48a,1);g.fillRect(x-15,0,14,H);g.fillRect(x+136,0,14,H);});
+      // Dense old Dhaka buildings with roofs, balconies, windows and shadows
+      const walls=[0xb77c62,0xc5aa83,0x9caa98,0xb98b75,0xd0bd98,0x84989b,0xa68c9f,0xc4a16e];
+      let seed=41;const rnd=()=>{seed=(seed*9301+49297)%233280;return seed/233280;};
+      for(let y=22;y<H-120;y+=185)for(let x=18;x<W-130;x+=194){
+        if((x>290&&x<560&&y>260&&y<560)||(x>380&&x<535&&y>1120&&y<1370))continue;
+        const bx=x+Math.floor(rnd()*24),by=y+Math.floor(rnd()*18),w=125+Math.floor(rnd()*44),h=112+Math.floor(rnd()*45),wall=walls[Math.floor(rnd()*walls.length)];
+        g.fillStyle(0x202923,.36);g.fillRoundedRect(bx+9,by+13,w,h,4);
+        g.fillStyle(0x343d39,1);g.fillRect(bx-5,by-8,w+10,13);
+        g.fillStyle(wall,1);g.fillRect(bx,by,w,h);
+        g.fillStyle(0x786b58,.8);g.fillRect(bx+5,by+5,w-10,5);
+        // roof tin patches and water tanks
+        g.fillStyle(0x65716e,1);g.fillRect(bx+8,by+10,w-16,8);
+        if(rnd()>.45){g.fillStyle(0x6d7772,1);g.fillRect(bx+w-35,by+15,24,20);g.fillStyle(0x9ca8a0,1);g.fillRect(bx+w-33,by+12,20,4);}
+        // window rows
+        const rows=Math.max(2,Math.floor((h-28)/31));
+        for(let r=0;r<rows;r++)for(let c=0;c<3;c++){
+          const wx=bx+13+c*((w-42)/3),wy=by+25+r*31;
+          g.fillStyle(0x514f47,1);g.fillRect(wx-2,wy-2,25,19);
+          g.fillStyle(rnd()>.18?0x78999a:0x453f36,1);g.fillRect(wx,wy,21,15);
+          g.lineStyle(2,0xddd0b1,.8);g.lineBetween(wx+10,wy,wx+10,wy+15);
+          if(rnd()>.55){g.fillStyle(0x5b5e50,1);g.fillRect(wx-3,wy+16,27,3);}
+        }
+        // doorway and signboard
+        g.fillStyle(0x514237,1);g.fillRect(bx+w/2-12,by+h-35,24,35);
+        g.fillStyle(0xe0c16d,1);g.fillRect(bx+8,by+h-19,w-16,8);
+        g.fillStyle(0x6c5441,1);g.fillRect(bx+10,by+h-18,w-20,2);
       }
-      g.setDepth(0);
-      for(let i=0;i<18;i++){const x=80+(i*137)%2400,y=160+(i*251)%1780;const tree=this.add.container(x,y);tree.add([this.add.ellipse(2,18,42,15,0x263d29,.25),this.add.circle(0,0,19,0x426d43),this.add.circle(-10,-8,12,0x5c884c),this.add.rectangle(0,17,7,20,0x725338)]);tree.setDepth(1);}
+      // roadside stalls, drain covers and street lamps
+      for(let i=0;i<28;i++){const x=55+(i*173)%2450,y=250+(i*311)%1700;g.fillStyle(0x343d39,.8);g.fillRect(x,y,20,5);g.fillStyle(0x8d8771,.8);g.fillRect(x+3,y+2,14,2);}
+      for(let i=0;i<24;i++){const x=70+(i*211)%2450,y=180+(i*277)%1750;const lamp=this.add.container(x,y);lamp.add([this.add.ellipse(0,9,18,7,0x222923,.25),this.add.rectangle(0,-3,3,28,0x444b45),this.add.rectangle(0,-18,16,5,0xd2c28e)]);lamp.setDepth(2);}
+      for(let i=0;i<34;i++){const x=60+(i*137)%2460,y=150+(i*251)%1800;if([330,900,1470].some(r=>Math.abs(y-r)<95)||[380,1040,1710,2300].some(r=>Math.abs(x-r)<95))continue;const tree=this.add.container(x,y);tree.add([this.add.ellipse(2,18,42,15,0x263d29,.3),this.add.rectangle(0,15,8,22,0x725338),this.add.circle(0,0,20,0x315b3b),this.add.circle(-10,-7,12,0x477447),this.add.circle(10,-5,11,0x3c6a40)]);tree.setDepth(2);}
     }
     addLandmarks(){
       this.shop(650,560,160,88,0xd84f40,"চায়ের দোকান","চা · ৳ ১০","tea");
@@ -85,7 +136,26 @@
       const o=this.add.container(x,y);o.add([this.add.circle(0,0,24,color,.20),this.add.circle(0,0,12,color).setStrokeStyle(3,0xffffff),this.add.text(0,-38,label,{fontFamily:"Hind Siliguri",fontSize:"13px",fontStyle:"bold",color:"#fff",stroke:"#20322b",strokeThickness:4}).setOrigin(.5)]);o.setDepth(4);this.points.push({x,y,kind,label,object:o,active:true});
     }
     drawRickshaw(c){
-      c.add([this.add.ellipse(3,20,76,34,0x1b2a20,.32),this.add.circle(-27,19,11,0x202729).setStrokeStyle(4,0xc7c3b5),this.add.circle(27,19,11,0x202729).setStrokeStyle(4,0xc7c3b5),this.add.rectangle(0,2,49,48,0x15977e).setStrokeStyle(3,0x104c43),this.add.rectangle(0,-12,43,24,0xf0bd4c).setStrokeStyle(3,0x6c4a20),this.add.rectangle(0,-34,52,8,0x293439),this.add.circle(0,-21,9,0x8b4f30).setStrokeStyle(2,0xf2c99d),this.add.rectangle(0,-2,7,18,0x293439)]);c.setDepth(5);
+      // Detailed Bangladeshi pedal rickshaw: steel frame, passenger hood, seat and spokes
+      c.add([this.add.ellipse(2,25,92,37,0x17211d,.34),
+        this.add.circle(-31,22,13,0x202426).setStrokeStyle(4,0xb8b8ad),this.add.circle(31,22,13,0x202426).setStrokeStyle(4,0xb8b8ad),
+        this.add.circle(-31,22,5,0x858b83),this.add.circle(31,22,5,0x858b83),
+        this.add.line(-31,22,0,-2,0xc4bda7).setLineWidth(3),this.add.line(31,22,0,-2,0xc4bda7).setLineWidth(3),
+        this.add.rectangle(0,5,53,42,0x147a68).setStrokeStyle(3,0x243c36),
+        this.add.rectangle(0,-15,49,28,0xd7a83e).setStrokeStyle(3,0x654d27),
+        this.add.rectangle(0,-31,58,8,0x253a39),this.add.rectangle(-24,-23,5,24,0x263d3b),this.add.rectangle(24,-23,5,24,0x263d3b),
+        this.add.triangle(0,-48,-29,-30,29,-30,0,-65,0xc84d43).setStrokeStyle(2,0x713b32),
+        this.add.triangle(0,-43,-24,-31,24,-31,0,-57,0xe6b74e),
+        this.add.circle(0,-19,9,0x8d5339).setStrokeStyle(2,0xe3b88d),
+        this.add.rectangle(0,-4,8,17,0x273b39),this.add.rectangle(-5,15,18,4,0x303c3a),
+        this.add.rectangle(0,0,2,50,0xd7c58b,.7)]);
+      c.setDepth(5);
+    }
+    addPedestrian(x,y,i){
+      const palette=[0x3e7180,0xb56b43,0x56734c,0x8b6387,0xb49a55,0x557e83];
+      const p=this.add.container(x,y);
+      p.add([this.add.ellipse(1,12,18,8,0x20251f,.25),this.add.rectangle(0,5,10,13,palette[i%palette.length]).setStrokeStyle(1,0x3a3b32),this.add.circle(0,-5,5,0x986746),this.add.arc(0,-7,6,Math.PI,Math.PI*2,false,0x292c29).setStrokeStyle(2,0x292c29),this.add.rectangle(-3,14,3,8,0x393c39),this.add.rectangle(3,14,3,8,0x393c39)]);
+      p.setDepth(5);this.pedestrians.push({obj:p,originX:x,originY:y,phase:i*1.7,dir:i%2?1:-1});
     }
     drawPolice(c){c.add([this.add.circle(0,0,19,0x315e9b).setStrokeStyle(3,0x182f4c),this.add.circle(0,-4,8,0x9b5a39),this.add.rectangle(0,-15,18,5,0x1d2b38)]);c.setDepth(6);}
     update(time,delta){
@@ -93,7 +163,19 @@
       let vx=(right?1:0)-(left?1:0),vy=(down?1:0)-(up?1:0),moving=vx!==0||vy!==0;
       if(moving&&state.battery>0){const l=Math.hypot(vx,vy);vx/=l;vy/=l;state.food=Math.max(0,state.food-delta*.00012);const hungerPenalty=state.food<15?0.72:1;this.player.body.setVelocity(vx*this.speed*hungerPenalty,vy*this.speed*hungerPenalty);state.battery=Math.max(0,state.battery-delta*(.0013+this.speed*.000003));this.player.rotation=Math.atan2(vy,vx)+Math.PI/2;}
       else{this.player.body.setVelocity(0,0);state.battery=Math.min(100,state.battery+delta*.00025);}
-      this.traffic.forEach(t=>{t.obj.x+=t.dx*delta*.035;if(t.obj.x>2500)t.obj.x=80;if(t.obj.x<50)t.obj.x=2480;const hit=Phaser.Math.Distance.Between(this.player.x,this.player.y,t.obj.x,t.obj.y)<39;if(hit&&moving&&time-this.lastCrash>3500){this.lastCrash=time;state.wanted=Math.min(5,state.wanted+1);state.family=Math.max(0,state.family-2);toast("সাবধান! গাড়িতে ধাক্কা লেগেছে — পুলিশ খাতায় নাম উঠেছে!");this.cameras.main.shake(180,.003);save();updateHud();}});
+      this.traffic.forEach(t=>{
+        if(t.vertical){t.obj.y+=t.dx*delta*.025;if(t.obj.y>1980)t.obj.y=100;if(t.obj.y<80)t.obj.y=1970;}
+        else{t.obj.x+=t.dx*delta*.035;if(t.obj.x>2500)t.obj.x=80;if(t.obj.x<50)t.obj.x=2480;}
+        const hit=Phaser.Math.Distance.Between(this.player.x,this.player.y,t.obj.x,t.obj.y)<43;
+        if(hit&&moving&&time-this.lastCrash>3500){this.lastCrash=time;state.wanted=Math.min(5,state.wanted+1);state.family=Math.max(0,state.family-2);this.player.body.setVelocity(-vx*90,-vy*90);toast("দুর্ঘটনা! গাড়ির ক্ষতি হয়েছে—পুলিশের নজরে পড়েছেন।");this.cameras.main.shake(220,.004);save();updateHud();}
+      });
+      this.pedestrians.forEach(p=>{
+        p.phase+=delta*.001;
+        p.obj.x=p.originX+Math.sin(p.phase)*23*p.dir;
+        p.obj.y=p.originY+Math.cos(p.phase*.7)*9;
+        const near=Phaser.Math.Distance.Between(this.player.x,this.player.y,p.obj.x,p.obj.y);
+        if(near<25&&moving&&time-this.lastCrash>3000){this.lastCrash=time;state.wanted=Math.min(5,state.wanted+1);state.family=Math.max(0,state.family-3);this.player.body.setVelocity(-vx*70,-vy*70);toast("পথচারীর সঙ্গে ধাক্কা! পুলিশি ঝামেলা হতে পারে।");this.cameras.main.shake(240,.004);save();updateHud();}
+      });
       const p=nearbyAction();if(p)ui.action.textContent=p.kind==="passenger"?"যাত্রী নিন":p.kind==="garage"?"রিকশা আপগ্রেড":p.kind==="home"?"বাসায় যান":p.kind==="police"?"থানায় কথা বলুন":p.kind==="tea"?"চা খান":"ভাত খান";else ui.action.textContent="কাজ করুন";
       if(state.wanted>0){this.police.setVisible(true);this.police.body.setEnable(true);const angle=Phaser.Math.Angle.Between(this.police.x,this.police.y,this.player.x,this.player.y);this.physics.moveToObject(this.police,this.player,70+state.wanted*13);if(Phaser.Math.Distance.Between(this.police.x,this.police.y,this.player.x,this.player.y)<42){const fine=Math.min(state.cash,Math.max(50,state.wanted*60));state.cash-=fine;state.wanted=0;this.police.body.setVelocity(0,0);this.police.setPosition(1900,900);toast("পুলিশ ধরেছে! জরিমানা ৳ "+bn(fine));save();updateHud();}else if(time-this.lastWanted>45000){state.wanted=Math.max(0,state.wanted-1);this.lastWanted=time;}}
       else{this.police.setVisible(false);this.police.body.setEnable(false);}
