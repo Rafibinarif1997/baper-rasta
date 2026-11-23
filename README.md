@@ -12,8 +12,8 @@ Open the GitHub Pages site after enabling Pages from **Settings → Pages → De
 - Tea stall, rice hotel, home and rickshaw garage interactions.
 - Battery drain and passive recharge.
 - Rickshaw speed/battery upgrades purchased with in-game money.
-- Daily home/upkeep loop and family condition meter in saved game state.
-- Wanted stars, a pursuing police officer and fine when caught.
+- Daily income target, home/upkeep loop, family condition and food/energy meters. Low food reduces movement speed; meals restore food.
+- Traffic crash incidents, wanted stars, a pursuing police officer and fine when caught.
 - Local browser save using localStorage (single-device only).
 
 ## Controls
